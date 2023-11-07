@@ -9,15 +9,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class JsonSerializer {
 
-    public String transformObjectToJson(Object object) {
+    public static String transformObjectToJson(Object object) {
         Map<String, Object> objectMap = serializeObject(object);
         return mapToJsonString(objectMap);
     }
 
-    private Map<String, Object> serializeObject(Object object) {
+    private static Map<String, Object> serializeObject(Object object) {
         Map<String, Object> serializedObject = new HashMap<>();
         Field[] fields = object.getClass().getDeclaredFields();
         for (Field field : fields) {
@@ -44,7 +46,7 @@ public class JsonSerializer {
         return serializedObject;
     }
 
-    private List<Object> serializeList(List<?> list) {
+    private static List<Object> serializeList(List<?> list) {
         List<Object> serializedList = new ArrayList<>();
         for (Object item : list) {
             if (item instanceof Map) {
@@ -60,7 +62,7 @@ public class JsonSerializer {
         return serializedList;
     }
 
-    private Map<String, Object> serializeMap(Map<?, ?> map) {
+    private static Map<String, Object> serializeMap(Map<?, ?> map) {
         Map<String, Object> serializedMap = new HashMap<>();
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             Object key = entry.getKey();
@@ -80,7 +82,7 @@ public class JsonSerializer {
         return serializedMap;
     }
 
-    private String mapToJsonString(Map<String, Object> map) {
+    private static String mapToJsonString(Map<String, Object> map) {
         StringBuilder jsonBuilder = new StringBuilder();
         jsonBuilder.append("{");
         Iterator<Map.Entry<String, Object>> iterator = map.entrySet().iterator();
@@ -96,7 +98,7 @@ public class JsonSerializer {
         return jsonBuilder.toString();
     }
 
-    private void appendValueToJson(Object value, StringBuilder jsonBuilder) {
+    private static void appendValueToJson(Object value, StringBuilder jsonBuilder) {
         if (value instanceof String) {
             jsonBuilder.append("\"").append(escapeString((String) value)).append("\"");
         } else if (value instanceof Number || value instanceof Boolean) {
@@ -110,7 +112,7 @@ public class JsonSerializer {
         }
     }
 
-    private String listToJsonString(List<Object> list) {
+    private static String listToJsonString(List<Object> list) {
         StringBuilder jsonBuilder = new StringBuilder();
         jsonBuilder.append("[");
         Iterator<Object> iterator = list.iterator();
@@ -125,7 +127,7 @@ public class JsonSerializer {
         return jsonBuilder.toString();
     }
 
-    private String escapeString(String value) {
+    private static String escapeString(String value) {
         StringBuilder escapedBuilder = new StringBuilder();
         for (int i = 0; i < value.length(); i++) {
             char c = value.charAt(i);

@@ -1,8 +1,11 @@
 package by.clevertec.reflection.util;
 
+import by.clevertec.reflection.converter.GsonLocalDateTimeDeserializer;
 import by.clevertec.reflection.entity.Base;
 import by.clevertec.reflection.entity.Inner;
 import by.clevertec.reflection.entity.Second;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -33,5 +36,12 @@ public class BaseBuilder {
 
     public static String getJsonBase() {
         return "{\"id\":1,\"second\":{\"listMap\":{\"innerMapKey\":[{\"dateTime\":\"2023-11-06T20:55:25\",\"name\":\"inner One\"},{\"dateTime\":\"2023-10-03T10:39:14\",\"name\":\"inner Two\"}]},\"type\":\"second type\"}}";
+    }
+
+    public static Base getBaseThroughGson() {
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, new GsonLocalDateTimeDeserializer())
+                .create();
+        return gson.fromJson(getJsonBase(), Base.class);
     }
 }

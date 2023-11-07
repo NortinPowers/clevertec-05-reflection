@@ -1,5 +1,6 @@
 package by.clevertec.reflection.converter;
 
+import static by.clevertec.reflection.converter.JsonSerializer.transformObjectToJson;
 import static by.clevertec.reflection.util.BaseBuilder.getBase;
 import static by.clevertec.reflection.util.BaseBuilder.getJsonBase;
 
@@ -10,10 +11,9 @@ class JsonSerializerTest {
 
     @Test
     void transformObjectToJsonShouldResultEquals_whenComparingObjectToJson() {
-        JsonSerializer jsonSerializer = new JsonSerializer();
         String expected = getJsonBase();
 
-        String actual = jsonSerializer.transformObjectToJson(getBase());
+        String actual = transformObjectToJson(getBase());
 
         Assertions.assertEquals(expected, actual);
     }

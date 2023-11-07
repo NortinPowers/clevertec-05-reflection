@@ -1,9 +1,9 @@
 package by.clevertec.reflection;
 
+import static by.clevertec.reflection.converter.JsonSerializer.transformObjectToJson;
 import static by.clevertec.reflection.util.BaseBuilder.getBase;
 
 import by.clevertec.reflection.converter.CustomJsonDeserializer;
-import by.clevertec.reflection.converter.JsonSerializer;
 import by.clevertec.reflection.entity.Base;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,8 +15,7 @@ public class Main {
     public static void main(String[] args) {
         Base base = getBase();
 
-        JsonSerializer jsonSerializer = new JsonSerializer();
-        String jsonString = jsonSerializer.transformObjectToJson(base);
+        String jsonString = transformObjectToJson(base);
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         JsonElement jsonElement = JsonParser.parseString(jsonString);

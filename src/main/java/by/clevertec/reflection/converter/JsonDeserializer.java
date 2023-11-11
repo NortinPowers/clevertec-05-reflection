@@ -1,9 +1,9 @@
 package by.clevertec.reflection.converter;
 
-import static by.clevertec.reflection.util.Constant.PACKAGE;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +22,7 @@ public class JsonDeserializer {
         return deserializeObject(objectMap, clazz);
     }
 
-    public static Map<String, Object> parseJson(String jsonString) {
+    private static Map<String, Object> parseJson(String jsonString) {
         Map<String, Object> jsonMap = new LinkedHashMap<>();
         Pattern objectPattern = Pattern.compile("\\{[^{}]*\\}");
         Pattern keyValuePairPattern = Pattern.compile("\"(\\w+)\":([^,}]+)");
@@ -73,7 +73,8 @@ public class JsonDeserializer {
         return jsonArray;
     }
 
-    private static Object deserializeObject(Map<String, Object> objectMap, Class<?> clazz) throws NoSuchMethodException, InvocationTargetException {
+    private static Object deserializeObject(Map<String, Object> objectMap, Class<?> clazz)
+            throws NoSuchMethodException, InvocationTargetException {
         try {
             Object object = clazz.getDeclaredConstructor().newInstance();
             Field[] fields = clazz.getDeclaredFields();
@@ -83,15 +84,7 @@ public class JsonDeserializer {
                 if (objectMap.containsKey(fieldName)) {
                     Object fieldValue = objectMap.get(fieldName);
                     if (fieldValue != null) {
-                        if (field.getType().equals(LocalDateTime.class)) {
-                            fieldValue = LocalDateTime.parse((CharSequence) fieldValue);
-                        } else if (field.getType().equals(Map.class)) {
-                            fieldValue = deserializeMap((Map<?, ?>) fieldValue);
-                        } else if (field.getType().equals(List.class)) {
-                            fieldValue = deserializeList((List<?>) fieldValue);
-                        } else if (field.getType().getPackage().getName().startsWith(PACKAGE)) {
-                            fieldValue = deserializeObject((Map<String, Object>) fieldValue, field.getType());
-                        }
+                        fieldValue = processFieldValue(fieldValue, field.getType());
                         field.set(object, fieldValue);
                     }
                 }
@@ -103,7 +96,56 @@ public class JsonDeserializer {
         }
     }
 
-    private static Map<String, Object> deserializeMap(Map<?, ?> map) {
+    private static Object processFieldValue(Object fieldValue, Class<?> fieldType)
+            throws NoSuchMethodException, InvocationTargetException {
+        if (fieldType.equals(LocalDateTime.class)) {
+            return LocalDateTime.parse((CharSequence) fieldValue);
+        } else if (fieldType.equals(Map.class)) {
+            return deserializeMap((Map<?, ?>) fieldValue);
+        } else if (fieldType.equals(Character.class) || fieldType.equals(char.class)) {
+            return ((String) fieldValue).charAt(0);
+        } else if (fieldType.equals(List.class)) {
+            ParameterizedType listType = (ParameterizedType) fieldType.getGenericSuperclass();
+            Type elementType = listType.getActualTypeArguments()[0];
+            return deserializeList((List<?>) fieldValue, elementType);
+        } else if (!fieldType.isPrimitive() && !fieldType.getPackage().getName().startsWith("java.lang")) {
+            return deserializeObject((Map<String, Object>) fieldValue, fieldType);
+        } else {
+            return fieldValue;
+        }
+    }
+
+    private static List<Object> deserializeList(List<?> list, Type elementType)
+            throws NoSuchMethodException, InvocationTargetException {
+        List<Object> deserializedList = new ArrayList<>();
+        for (Object item : list) {
+            if (item instanceof Map && elementType instanceof ParameterizedType parameterizedType) {
+                Type typeArgument = parameterizedType.getActualTypeArguments()[0];
+                deserializedList.add(deserializeObject((Map<String, Object>) item, (Class<?>) typeArgument));
+            } else {
+                deserializedList.add(item);
+            }
+        }
+        return deserializedList;
+    }
+
+    private static List<Object> deserializeList(List<?> list)
+            throws NoSuchMethodException, InvocationTargetException {
+        List<Object> deserializedList = new ArrayList<>();
+        for (Object item : list) {
+            if (item instanceof Map) {
+                deserializedList.add(deserializeObject((Map<String, Object>) item, Object.class));
+            } else if (item instanceof List) {
+                deserializedList.add(deserializeList((List<?>) item));
+            } else {
+                deserializedList.add(item);
+            }
+        }
+        return deserializedList;
+    }
+
+    private static Map<String, ?> deserializeMap(Map<?, ?> map)
+            throws NoSuchMethodException, InvocationTargetException {
         Map<String, Object> deserializedMap = new HashMap<>();
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             String key = entry.getKey().toString();
@@ -116,19 +158,5 @@ public class JsonDeserializer {
             deserializedMap.put(key, value);
         }
         return deserializedMap;
-    }
-
-    private static List<Object> deserializeList(List<?> list) {
-        List<Object> deserializedList = new ArrayList<>();
-        for (Object item : list) {
-            Object object = new Object();
-            if (item instanceof Map) {
-                object = deserializeMap((Map<?, ?>) item);
-            } else if (item instanceof List) {
-                object = deserializeList((List<?>) item);
-            }
-            deserializedList.add(object);
-        }
-        return deserializedList;
     }
 }

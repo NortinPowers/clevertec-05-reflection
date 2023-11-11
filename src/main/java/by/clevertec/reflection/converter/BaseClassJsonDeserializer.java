@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CustomJsonDeserializer {
+public class BaseClassJsonDeserializer {
 
     public Base convertJsonToBase(String jsonString) {
         Base base = new Base();

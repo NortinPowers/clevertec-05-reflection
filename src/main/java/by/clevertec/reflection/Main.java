@@ -3,7 +3,7 @@ package by.clevertec.reflection;
 import static by.clevertec.reflection.converter.JsonSerializer.transformObjectToJson;
 import static by.clevertec.reflection.util.BaseBuilder.getBase;
 
-import by.clevertec.reflection.converter.CustomJsonDeserializer;
+import by.clevertec.reflection.converter.BaseClassJsonDeserializer;
 import by.clevertec.reflection.entity.Base;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,7 +24,7 @@ public class Main {
 
         System.out.println("\n________________\n");
 
-        CustomJsonDeserializer jsonDeserializer = new CustomJsonDeserializer();
+        BaseClassJsonDeserializer jsonDeserializer = new BaseClassJsonDeserializer();
         Base converted = jsonDeserializer.convertJsonToBase(jsonString);
         System.out.println("Convert to object:\n" + converted);
     }

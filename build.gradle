@@ -13,9 +13,11 @@ repositories {
 dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'org.json:json:20231013'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
 
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
 }
 
 jar {
@@ -31,4 +33,6 @@ jar {
 
 test {
     useJUnitPlatform()
+
+    jvmArgs(['--add-opens', 'java.base/java.util=ALL-UNNAMED'])
 }

@@ -7,14 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import by.clevertec.reflection.entity.Base;
 import org.junit.jupiter.api.Test;
 
-class CustomJsonDeserializerTest {
+class BaseClassJsonDeserializerTestSome {
 
     @Test
     void convertJsonToBaseShouldResultEquals_whenComparingObjectFromJson() {
-        CustomJsonDeserializer customJsonDeserializer = new CustomJsonDeserializer();
+        BaseClassJsonDeserializer baseClassJsonDeserializer = new BaseClassJsonDeserializer();
         Base expected = getBase();
 
-        Base actual = customJsonDeserializer.convertJsonToBase(getJsonBase());
+        Base actual = baseClassJsonDeserializer.convertJsonToBase(getJsonBase());
 
         assertEquals(expected, actual);
     }

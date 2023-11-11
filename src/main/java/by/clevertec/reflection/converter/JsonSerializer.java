@@ -1,12 +1,15 @@
 package by.clevertec.reflection.converter;
 
+import static by.clevertec.reflection.util.Constant.InnerField.DATA_FORMAT;
 import static by.clevertec.reflection.util.Constant.PACKAGE;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.experimental.UtilityClass;
@@ -20,7 +23,7 @@ public class JsonSerializer {
     }
 
     private static Map<String, Object> serializeObject(Object object) {
-        Map<String, Object> serializedObject = new HashMap<>();
+        Map<String, Object> serializedObject = new LinkedHashMap<>();
         Field[] fields = object.getClass().getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
@@ -28,7 +31,9 @@ public class JsonSerializer {
                 Object value = field.get(object);
                 if (value != null) {
                     if (value instanceof LocalDateTime) {
-                        value = value.toString();
+                        value = ((LocalDateTime) value).format(DateTimeFormatter.ofPattern(DATA_FORMAT));
+                    } else if (value instanceof Character) {
+                        value = Character.toString((char) value);
                     } else if (value instanceof Map) {
                         value = serializeMap((Map<?, ?>) value);
                     } else if (value instanceof List) {
@@ -42,7 +47,6 @@ public class JsonSerializer {
                 System.out.println("Error: " + e.getMessage());
             }
         }
-
         return serializedObject;
     }
 
